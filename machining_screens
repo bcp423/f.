@@ -1,0 +1,274 @@
+
+declare #screentimer
+declare #shift
+declare #counter1
+declare #counter2
+declare #counter3
+declare #failure
+declare #horaatual
+declare $horastr
+declare #counter1temp
+declare #shift1diff
+declare #shift1counter
+declare #counter2temp
+declare #shift2diff
+declare #shift2counter
+declare #counter3temp
+declare #shift3diff
+declare #shift3counter
+
+
+IF (#horaatual > 0) && (#horaatual <= 359) THEN #shift = 3
+IF (#horaatual > 359) && (#horaatual <= 789) THEN #shift = 1
+IF (#horaatual > 789) && (#horaatual <= 839) THEN #shift = 2
+IF (#horaatual > 839) && (#horaatual <= 899) THEN #shift = 1
+IF (#horaatual > 899) && (#horaatual <= 1319) THEN #shift = 2
+IF (#horaatual > 1319) && (#horaatual <= 1439) THEN #shift = 3
+
+;#failure = GETTAG("CONTADOR1", #counter1)
+;#failure = GETTAG("CONTADOR2", #counter2)
+;#failure = GETTAG("CONTADOR3", #counter3)
+
+#counter3 = 0
+#shift3counter = 0
+#failure = SETTAG("CONTADOR3", #shift3counter)
+
+:screen1open
+newpic ("screen1.sid")
+
+GOTO screen1loop
+
+:screen1loop
+WHILE #screentimer != 10 
+
+;verifica turno e copia valor da TAG para contador
+IF #shift == 1 THEN #failure = GETTAG("ACTUAL", #counter1)
+IF #shift == 2 THEN #failure = GETTAG("ACTUAL", #counter2)
+IF #shift == 3 THEN #failure = GETTAG("ACTUAL", #counter3)
+
+
+
+#failure = SETTAG("TEMPORIZADOR", #screentimer)
+#failure = GETTAG("CLOCK", $horastr)
+#horaatual = STRMIN($horastr)
+
+;verifica hora atual e altera turno
+
+IF (#horaatual > 1319) && (#horaatual <= 1439) THEN #shift = 3
+IF (#horaatual > 0) && (#horaatual <= 359) THEN #shift = 3
+IF (#horaatual > 359) && (#horaatual <= 789) THEN #shift = 1
+IF (#horaatual > 789) && (#horaatual <= 839) THEN #shift = 2
+IF (#horaatual > 839) && (#horaatual <= 899) THEN #shift = 1
+IF (#horaatual > 899) && (#horaatual <= 1319) THEN #shift = 2
+
+;Verifica mudanca de turno e transfere contador temporario 
+
+IF (#horaatual == 840) THEN #counter1temp = #counter1
+IF (#horaatual == 790) THEN #counter2temp = #counter2
+
+;verifica numero de pecas alterou e realiza subtracao adicao de valor ao contador
+
+IF #shift == 1 THEN #shift1diff = #counter1 - #counter1temp
+IF #shift == 1 THEN #shift1counter = #shift1counter + #shift1diff
+
+IF #shift == 2 THEN #shift2diff = #counter2 - #counter2temp
+IF #shift == 2 THEN #shift2counter = #shift2counter + #shift2diff
+
+IF #shift == 3 THEN #shift3diff = #counter3 - #counter3temp
+IF #shift == 3 THEN #shift3counter = #shift3counter + #shift3diff
+
+;Verifica turno e transfere valor da variavel para TAG no Andon
+IF #shift == 1 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #shift == 2 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #shift == 3 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+;Armazena valor anterior do contador
+IF #shift == 1 THEN #counter1temp = #counter1
+IF #shift == 2 THEN #counter2temp = #counter2
+IF #shift == 3 THEN #counter3temp = #counter3
+
+;Zera os contadores as 06:00 da manha
+IF #horaatual == 360 THEN #shift1counter = 0
+IF #horaatual == 360 THEN #shift1diff = 0
+IF #horaatual == 360 THEN #counter1temp = 0
+IF #horaatual == 360 THEN #shift2counter = 0
+IF #horaatual == 360 THEN #shift2diff = 0
+IF #horaatual == 360 THEN #counter2temp = 0
+IF #horaatual == 360 THEN #shift3counter = 0
+IF #horaatual == 360 THEN #shift3diff = 0
+IF #horaatual == 360 THEN #counter3temp = 0
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("SHIFT", #shift)
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("HORA", #horaatual)
+WAIT(1.0)
+#screentimer ++
+WEND
+#screentimer = 0
+GOTO screen2open
+
+:screen2open
+newpic ("screen2.sid")
+GOTO screen2loop
+
+:screen2loop
+
+WHILE #screentimer != 10 
+
+;verifica turno e copia valor da TAG para contador
+IF #shift == 1 THEN #failure = GETTAG("ACTUAL", #counter1)
+IF #shift == 2 THEN #failure = GETTAG("ACTUAL", #counter2)
+IF #shift == 3 THEN #failure = GETTAG("ACTUAL", #counter3)
+
+
+
+#failure = SETTAG("TEMPORIZADOR", #screentimer)
+#failure = GETTAG("CLOCK", $horastr)
+#horaatual = STRMIN($horastr)
+
+;verifica hora atual e altera turno
+
+IF (#horaatual > 1319) && (#horaatual <= 1439) THEN #shift = 3
+IF (#horaatual > 0) && (#horaatual <= 359) THEN #shift = 3
+IF (#horaatual > 359) && (#horaatual <= 789) THEN #shift = 1
+IF (#horaatual > 789) && (#horaatual <= 839) THEN #shift = 2
+IF (#horaatual > 839) && (#horaatual <= 899) THEN #shift = 1
+IF (#horaatual > 899) && (#horaatual <= 1319) THEN #shift = 2
+
+;Verifica mudanca de turno e transfere contador temporario 
+
+IF (#horaatual == 840) THEN #counter1temp = #counter1
+IF (#horaatual == 790) THEN #counter2temp = #counter2
+
+;verifica numero de pecas alterou e realiza subtracao adicao de valor ao contador
+
+IF #shift == 1 THEN #shift1diff = #counter1 - #counter1temp
+IF #shift == 1 THEN #shift1counter = #shift1counter + #shift1diff
+
+IF #shift == 2 THEN #shift2diff = #counter2 - #counter2temp
+IF #shift == 2 THEN #shift2counter = #shift2counter + #shift2diff
+
+IF #shift == 3 THEN #shift3diff = #counter3 - #counter3temp
+IF #shift == 3 THEN #shift3counter = #shift3counter + #shift3diff
+
+;Verifica turno e transfere valor da variavel para TAG no Andon
+IF #shift == 1 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #shift == 2 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #shift == 3 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+;Armazena valor anterior do contador
+IF #shift == 1 THEN #counter1temp = #counter1
+IF #shift == 2 THEN #counter2temp = #counter2
+IF #shift == 3 THEN #counter3temp = #counter3
+
+;Zera os contadores as 06:00 da manha
+IF #horaatual == 360 THEN #shift1counter = 0
+IF #horaatual == 360 THEN #shift1diff = 0
+IF #horaatual == 360 THEN #counter1temp = 0
+IF #horaatual == 360 THEN #shift2counter = 0
+IF #horaatual == 360 THEN #shift2diff = 0
+IF #horaatual == 360 THEN #counter2temp = 0
+IF #horaatual == 360 THEN #shift3counter = 0
+IF #horaatual == 360 THEN #shift3diff = 0
+IF #horaatual == 360 THEN #counter3temp = 0
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("SHIFT", #shift)
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("HORA", #horaatual)
+WAIT(1.0)
+#screentimer ++
+WEND
+#screentimer = 0
+GOTO screen3open
+
+:screen3open
+newpic ("screen4.sid")
+GOTO screen3loop
+
+:screen3loop
+
+WHILE #screentimer != 10 
+
+;verifica turno e copia valor da TAG para contador
+IF #shift == 1 THEN #failure = GETTAG("ACTUAL", #counter1)
+IF #shift == 2 THEN #failure = GETTAG("ACTUAL", #counter2)
+IF #shift == 3 THEN #failure = GETTAG("ACTUAL", #counter3)
+
+
+
+#failure = SETTAG("TEMPORIZADOR", #screentimer)
+#failure = GETTAG("CLOCK", $horastr)
+#horaatual = STRMIN($horastr)
+
+;verifica hora atual e altera turno
+
+IF (#horaatual > 1319) && (#horaatual <= 1439) THEN #shift = 3
+IF (#horaatual > 0) && (#horaatual <= 359) THEN #shift = 3
+IF (#horaatual > 359) && (#horaatual <= 789) THEN #shift = 1
+IF (#horaatual > 789) && (#horaatual <= 839) THEN #shift = 2
+IF (#horaatual > 839) && (#horaatual <= 899) THEN #shift = 1
+IF (#horaatual > 899) && (#horaatual <= 1319) THEN #shift = 2
+
+;Verifica mudanca de turno e transfere contador temporario 
+
+IF (#horaatual == 840) THEN #counter1temp = #counter1
+IF (#horaatual == 790) THEN #counter2temp = #counter2
+
+;verifica numero de pecas alterou e realiza subtracao adicao de valor ao contador
+
+IF #shift == 1 THEN #shift1diff = #counter1 - #counter1temp
+IF #shift == 1 THEN #shift1counter = #shift1counter + #shift1diff
+
+IF #shift == 2 THEN #shift2diff = #counter2 - #counter2temp
+IF #shift == 2 THEN #shift2counter = #shift2counter + #shift2diff
+
+IF #shift == 3 THEN #shift3diff = #counter3 - #counter3temp
+IF #shift == 3 THEN #shift3counter = #shift3counter + #shift3diff
+
+;Verifica turno e transfere valor da variavel para TAG no Andon
+IF #shift == 1 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #shift == 2 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #shift == 3 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+;Armazena valor anterior do contador
+IF #shift == 1 THEN #counter1temp = #counter1
+IF #shift == 2 THEN #counter2temp = #counter2
+IF #shift == 3 THEN #counter3temp = #counter3
+
+;Zera os contadores as 06:00 da manha
+IF #horaatual == 360 THEN #shift1counter = 0
+IF #horaatual == 360 THEN #shift1diff = 0
+IF #horaatual == 360 THEN #counter1temp = 0
+IF #horaatual == 360 THEN #shift2counter = 0
+IF #horaatual == 360 THEN #shift2diff = 0
+IF #horaatual == 360 THEN #counter2temp = 0
+IF #horaatual == 360 THEN #shift3counter = 0
+IF #horaatual == 360 THEN #shift3diff = 0
+IF #horaatual == 360 THEN #counter3temp = 0
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR1", #shift1counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR2", #shift2counter)
+IF #horaatual == 360 THEN #failure = SETTAG("CONTADOR3", #shift3counter)
+
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("SHIFT", #shift)
+
+;Trasfere valor da variavel para a TAG 
+#failure = SETTAG("HORA", #horaatual)
+WAIT(1.0)
+#screentimer ++
+WEND
+#screentimer = 0
+GOTO screen1open
